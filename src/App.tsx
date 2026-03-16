@@ -42,8 +42,9 @@ export default function App() {
     try {
       const descriptions = await generateProductDescriptions(input);
       setResults(descriptions);
-    } catch (error) {
-      alert('Có lỗi xảy ra khi tạo mô tả. Vui lòng thử lại.');
+    } catch (error: any) {
+      console.error('Generation error:', error);
+      alert(`Có lỗi xảy ra: ${error.message || 'Lỗi không xác định'}. Vui lòng kiểm tra API Key hoặc thử lại sau.`);
     } finally {
       setLoading(false);
     }

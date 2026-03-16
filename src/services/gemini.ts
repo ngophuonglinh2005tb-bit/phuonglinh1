@@ -17,7 +17,7 @@ export interface GeneratedDescription {
 }
 
 export async function generateProductDescriptions(input: ProductInput): Promise<GeneratedDescription[]> {
-  const model = "gemini-3.1-pro-preview";
+  const model = "gemini-3-flash-preview";
   
   const prompt = `
     Bạn là một chuyên gia viết nội dung (Copywriter) cho thương mại điện tử chuyên nghiệp.
@@ -37,24 +37,20 @@ export async function generateProductDescriptions(input: ProductInput): Promise<
     5. Tích hợp các từ khóa SEO một cách tự nhiên.
     6. Định dạng bằng Markdown.
     
-    Trả về kết quả dưới dạng mảng JSON chứa các đối tượng có cấu trúc:
+    Trả về kết quả dưới dạng JSON theo cấu trúc:
     {
       "descriptions": [
         {
           "version": 1,
-          "content": "Nội dung markdown ở đây",
-          "html": "Nội dung HTML đơn giản ở đây"
-        },
-        {
-          "version": 2,
-          "content": "Nội dung markdown ở đây",
-          "html": "Nội dung HTML đơn giản ở đây"
+          "content": "Nội dung markdown",
+          "html": "Nội dung HTML"
         }
       ]
     }
   `;
 
   try {
+    console.log("Generating descriptions with input:", input);
     const response = await ai.models.generateContent({
       model,
       contents: prompt,
@@ -81,10 +77,15 @@ export async function generateProductDescriptions(input: ProductInput): Promise<
       }
     });
 
-    const result = JSON.parse(response.text || "{}");
+    if (!response.text) {
+      throw new Error("No text returned from Gemini");
+    }
+
+    const result = JSON.parse(response.text);
+    console.log("Generation successful:", result);
     return result.descriptions || [];
   } catch (error) {
-    console.error("Error generating descriptions:", error);
+    console.error("Detailed error in generateProductDescriptions:", error);
     throw error;
   }
 }
